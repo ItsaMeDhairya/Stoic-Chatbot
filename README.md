@@ -1,12 +1,11 @@
 ﻿# Stoic-Chatbot
 The Stoa: A Stoic Philosopher AI Chatbot
-
+Please let the Website start (It will only take a couple of minutes)
 Live Demo: [https://stoic-chatbot.onrender.com/](https://stoic-chatbot-zumw.onrender.com)
 
 
 An immersive web application where users can seek wisdom and guidance by engaging in conversations with AI-powered personas of the great Stoic philosophers: Marcus Aurelius, Seneca, and Epictetus, or a collective Stoic Sage.
 
-(This is an image of your final homepage. You can replace the link if you take a different screenshot.)
 About The Project
 
 This project was born from a desire to make the profound wisdom of Stoicism more accessible and interactive. Instead of just reading their words, this application allows you to "speak" with the philosophers themselves. The AI's responses are grounded in the actual writings and philosophies of each thinker, providing authentic, in-character counsel on life, ethics, and personal challenges.
@@ -37,3 +36,4 @@ Tech Stack
     Frontend: HTML, Tailwind CSS for styling, and vanilla JavaScript for interactivity.
 
     Deployment: Hosted on Render via a GitHub repository.
+
