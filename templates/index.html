@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Stoa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* This CSS creates the ancient, scholarly vibe */
+        body {
+            background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
+            background-color: #f3eade; /* A warm, parchment-like base color */
+            font-family: 'Inter', sans-serif; /* A clean, readable font for the body text */
+        }
+        .font-cinzel { 
+            font-family: 'Cinzel', serif; /* An elegant, classical font for headings */
+        }
+        .philosopher-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+        }
+        .philosopher-card:hover {
+            transform: translateY(-10px); /* Lifts the card on hover */
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2); /* Adds a pronounced shadow */
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="container mx-auto px-4 py-12 min-h-screen flex flex-col items-center justify-center">
+        
+        <header class="text-center mb-12">
+            <h1 class="font-cinzel text-6xl md:text-7xl font-bold tracking-wider">The Stoa</h1>
+            <p class="text-lg text-stone-600 mt-2">Seek counsel from the masters of Stoic thought.</p>
+        </header>
+
+        <main class="w-full max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                
+                <!-- 
+                  This is a special Jinja2 template loop. 
+                  Your Python script (app.py) passes the philosopher data here,
+                  and this code automatically generates a card for each one.
+                -->
+                {% for id, philosopher in philosophers.items() %}
+                <a href="/chat/{{ id }}" class="philosopher-card group">
+                    <div class="bg-white/50 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden h-full border-2 border-stone-400/30 flex flex-col">
+                        <img src="{{ url_for('static', filename='images/' + philosopher.image_filename) }}" alt="Bust of {{ philosopher.name }}" class="w-full h-64 object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-300">
+                        <div class="p-6 text-center flex-grow flex flex-col justify-between">
+                            <div>
+                                <h2 class="font-cinzel text-2xl font-bold">{{ philosopher.name }}</h2>
+                                <h3 class="text-md text-stone-600 mb-3">{{ philosopher.title }}</h3>
+                            </div>
+                            <p class="text-sm text-stone-700 italic mt-4">"{{ philosopher.bio }}"</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+
+            </div>
+        </main>
+        
+        <footer class="text-center mt-16 text-stone-500">
+            <p>&copy; 2025. A place for reflection and virtue.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

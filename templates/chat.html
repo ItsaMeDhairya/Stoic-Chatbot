@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speak with {{ philosopher.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
+            background-color: #f3eade;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        #chat-window { 
+            height: 65vh; 
+            scrollbar-width: thin; 
+            scrollbar-color: #a8a29e #f3eade; /* For Firefox */
+        }
+        /* For Chrome, Safari, and Opera */
+        #chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-window::-webkit-scrollbar-track {
+            background: #f3eade;
+        }
+        #chat-window::-webkit-scrollbar-thumb {
+            background-color: #a8a29e;
+            border-radius: 4px;
+            border: 2px solid #f3eade;
+        }
+        .user-message { 
+            justify-self: end; 
+            background-color: #57534e; /* A dark stone color */
+            color: #f5f5f4; 
+        }
+        .bot-message { 
+            justify-self: start; 
+            background-color: #e7e5e4; /* A light stone color */
+            color: #3f3f46; 
+        }
+        .message-bubble { 
+            max-width: 80%; 
+            padding: 0.75rem 1rem; 
+            border-radius: 1.25rem; 
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); 
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="container mx-auto max-w-3xl flex flex-col h-screen p-4">
+        
+        <header class="text-center py-4 border-b-2 {{ philosopher.theme_color }}">
+            <a href="/" class="text-stone-500 hover:text-stone-800 transition mb-2 block">&larr; Return to The Stoa</a>
+            <h1 class="text-3xl font-cinzel font-bold">{{ philosopher.name }}</h1>
+            <p class="text-md text-stone-600">{{ philosopher.title }}</p>
+        </header>
+
+        <main id="chat-window" class="flex-1 my-4 p-4 overflow-y-auto grid grid-cols-1 auto-rows-min gap-y-4">
+            <!-- Initial greeting from the philosopher -->
+            <div class="message-bubble bot-message">
+                Greetings. I am {{ philosopher.name }}. Speak your mind, and I shall offer counsel.
+            </div>
+        </main>
+
+        <footer class="py-2">
+            <div class="flex items-center space-x-2">
+                <input type="text" id="message-input" class="flex-1 bg-white/80 border border-stone-400/50 rounded-full py-3 px-6 focus:outline-none focus:ring-2 focus:ring-stone-600" placeholder="Ask about virtue, life, or adversity..." autocomplete="off">
+                <button id="send-button" class="bg-stone-700 text-white rounded-full p-3 hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-600 disabled:bg-stone-400 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    // --- DOM Element References ---
+    const chatWindow = document.getElementById('chat-window');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    // This special Jinja2 tag gets the philosopher's ID from the Python server
+    const PHILOSOPHER_ID = '{{ philosopher_id }}';
+
+    // --- Event Listeners ---
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => { 
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevents new line on Enter key
+            sendMessage();
+        }
+    });
+
+    // --- Core Functions ---
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-bubble ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+        
+        // Format bold text (**text**) and remove stray asterisks, then convert newlines to <br> tags
+        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*/g, '');
+        messageDiv.innerHTML = formattedText.replace(/\n/g, '<br>');
+        
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the latest message
+    }
+
+    async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return; // Don't send empty messages
+
+        addMessage(message, 'user');
+        
+        // Gather the entire chat history from the screen.
+        const history = [];
+        document.querySelectorAll('.message-bubble').forEach(bubble => {
+            const isUser = bubble.classList.contains('user-message');
+            const role = isUser ? 'user' : 'model';
+            // Convert the bubble's HTML back into plain text for the AI model to understand.
+            const text = bubble.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<strong>(.*?)<\/strong>/gi, '**$1**');
+            
+            // Exclude the "reflecting..." bubble from the history
+            if (!bubble.id || bubble.id !== 'thinking') {
+                 history.push({ "role": role, "parts": [{"text": text }] });
+            }
+        });
+
+        messageInput.value = ''; // Clear the input field
+        sendButton.disabled = true; // Prevent multiple sends
+
+        // Display a "reflecting..." message while waiting for the AI
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = 'thinking';
+        thinkingDiv.className = 'message-bubble bot-message';
+        thinkingDiv.innerHTML = '<span class="animate-pulse">The philosopher is reflecting...</span>';
+        chatWindow.appendChild(thinkingDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        try {
+            // Send the entire chat history to the backend API
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    history: history, // Send the array of past messages
+                    philosopher_id: PHILOSOPHER_ID 
+                })
+            });
+            
+            const data = await response.json();
+            chatWindow.removeChild(thinkingDiv); // Remove the "reflecting..." message
+
+            if (!response.ok) {
+                // Handle errors from the server (e.g., API key issue, bad query)
+                throw new Error(data.error || 'The connection to the sages was lost.');
+            }
+            
+            // Add the AI's new response to the chat window
+            addMessage(data.response, 'bot');
+
+        } catch (error) {
+            // If an error occurs, make sure to remove the "reflecting..." message
+            if (document.getElementById('thinking')) {
+                chatWindow.removeChild(thinkingDiv);
+            }
+            addMessage(`Error: ${error.message}`, 'bot');
+        } finally {
+            sendButton.disabled = false; // Re-enable the send button
+            messageInput.focus(); // Set focus back to the input field
+        }
+    }
+</script>
+</body>
+</html>

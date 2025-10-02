@@ -1,0 +1,10 @@
+Ignore the secret API key file
+
+.env
+Ignore Python cache files
+
+pycache/
+*.pyc
+Ignore editor-specific files
+
+.vscode/
