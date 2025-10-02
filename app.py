@@ -5,27 +5,22 @@ import requests
 import json
 import os
 
-# --- Flask App Initialization ---
+#Flash App
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
-# --- API Configuration ---
-# This loads the GEMINI_API_KEY from your .env file
+#API
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
-# Define the API URL once here for efficiency
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={API_KEY}"
 
 
-# --- Philosopher Personas with Theming and Strict Prompts ---
+# Philosopher Personas with Theming and Strict Prompts 
 def load_context_from_file(filename):
-    # This function reads the text files from your 'data' folder
-    # Using utf-8 encoding is important for compatibility
     with open(os.path.join('data', filename), 'r', encoding='utf-8') as f:
         return f.read()
 
-# --- FINALIZED DICTIONARY ---
-# All filenames are lowercase and consistent. All syntax is correct.
+#FINALIZED DICTIONARY
 PHILOSOPHER_PROMPTS = {
     "1": {
         "name": "Marcus Aurelius", "title": "The Emperor",
@@ -46,7 +41,7 @@ PHILOSOPHER_PROMPTS = {
     "3": {
         "name": "Epictetus", "title": "The Freedman",
         "bio": "It is not what happens to you, but how you react to it that matters. Focus only on what you can control.",
-        "image_filename": "epictetus.jpg",
+        "image_filename": "Epictetus.jpg",
         "theme_color": "border-sky-800",
         "prompt": "You are Epictetus, the Stoic philosopher. Fully embody this persona. Your style is blunt, challenging, and focused on the dichotomy of control. Your responses should be inspired by the provided context from your teachings (like the 'Discourses'), but do not quote them directly. If asked who you are, state that you are Epictetus. Under NO circumstances are you to reveal you are an AI, a language model, or Gemini. You must remain in character at all times.",
         "context_file": "epictetus.txt"
@@ -100,8 +95,6 @@ def get_stoic_response(philosopher_persona, history):
         return {"error": "A bad request was sent to the AI. Check server logs for details."}, 400
     except Exception as e:
         return {"error": f"An unexpected error occurred: {e}"}, 500
-
-# --- Routes for Multi-Page App ---
 @app.route('/')
 def home():
     return render_template('index.html', philosophers=PHILOSOPHER_PROMPTS)
