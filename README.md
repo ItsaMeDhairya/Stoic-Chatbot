@@ -1,6 +1,9 @@
 ﻿# Stoic-Chatbot
+
 The Stoa: A Stoic Philosopher AI Chatbot
+
 Please let the Website start (It will only take a couple of minutes)
+
 Live Demo: [https://stoic-chatbot.onrender.com/](https://stoic-chatbot-zumw.onrender.com)
 
 
@@ -36,5 +39,6 @@ Tech Stack
     Frontend: HTML, Tailwind CSS for styling, and vanilla JavaScript for interactivity.
 
     Deployment: Hosted on Render via a GitHub repository.
+
 
 
